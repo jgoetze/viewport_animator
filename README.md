@@ -42,3 +42,10 @@ To apply animations to a list of children, just add **-children** as prefix to y
 You can delay animations by adding a class like **vpa-delay-1000** to your class list. 
 You can set the delay in ms within the class name. The direct and child animations will be
 delayed by the value.
+
+```html
+<ul class="vpa-from-bottom vpa-delay-1500">
+    <li>Child 1</li>
+    <li>Child 1</li>
+</ul>
+```

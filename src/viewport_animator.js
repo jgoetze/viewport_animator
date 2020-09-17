@@ -2,6 +2,7 @@ class ViewportAnimator {
 
     constructor() {
         this.animationClassPrefix = "vpa-";
+        this.delayClassPrefix = "vpa-delay-";
         this.childrenClassPrefix = "vpa-children-";
         this.classRegex = new RegExp(this.animationClassPrefix);
         this.childDelay = 200; // ms
@@ -13,8 +14,29 @@ class ViewportAnimator {
         if (!window.IntersectionObserver) return;
         if (this.bound) return;
 
+        this.prepareDelay();
         this.prepareChildren();
         this.bindObserver();
+
+        this.bound = true;
+    }
+
+    prepareDelay() {
+        let delayedAnimations = document.querySelectorAll(`[class*='${this.delayClassPrefix}'`);
+        let vpa = this;
+
+        delayedAnimations.forEach(function(node) {
+            node.classList.forEach(function(nodeClass) {
+                if (nodeClass.match(vpa.delayClassPrefix)) {
+
+                    let delay = parseInt(nodeClass.replace(/\D/g,''));
+                    node.dataset.vpaDelay = delay;
+
+                    node.classList.remove(nodeClass)
+
+                }
+            });
+        });
     }
 
     prepareChildren() {
@@ -26,11 +48,12 @@ class ViewportAnimator {
                 if (wrapperClass.match(vpa.childrenClassPrefix)) {
 
                     let newChildClass = wrapperClass.replace(vpa.childrenClassPrefix, vpa.animationClassPrefix);
+                    let baseDelay = parseInt(wrapper.dataset.vpaDelay || 0);
 
                     let i = 0;
                     for (let child of wrapper.children) {
                         child.classList.add(newChildClass);
-                        child.style.animationDelay = `${i * vpa.childDelay}ms`;
+                        child.style.animationDelay = `${(i * vpa.childDelay) + baseDelay}ms`;
                         i++;
                     }
 
@@ -49,7 +72,12 @@ class ViewportAnimator {
         objectsToWatch.forEach(function(object) {
             object.classList.forEach(function(objectClass) {
                 if (objectClass.match(vpa.classRegex)) {
+
+                    let baseDelay = object.dataset.vpaDelay;
+                    if (baseDelay) object.style.animationDelay = `${baseDelay}ms`;
+
                     object.dataset.vpaAnimation = objectClass;
+
                 }
             });
 

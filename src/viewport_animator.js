@@ -11,7 +11,12 @@ class ViewportAnimator {
     }
 
     bind() {
-        if (!window.IntersectionObserver) return;
+        if (!window.IntersectionObserver) {
+            this.bound = true;
+            this.initFallback();
+            return;
+        };
+
         if (this.bound) return;
 
         this.prepareDelay();
@@ -19,6 +24,21 @@ class ViewportAnimator {
         this.bindObserver();
 
         this.bound = true;
+    }
+
+    initFallback() {
+        let vpaObjects = document.querySelectorAll(`[class*='${this.animationClassPrefix}'`);
+
+        vpaObjects.forEach(function(object) {
+            let classesToRemove = [];
+            object.classList.forEach(function(objectClass) {
+                if (objectClass.match(vpa.classRegex)) classesToRemove.push(objectClass);
+            });
+
+            classesToRemove.forEach(function(classToRemove) {
+                object.classList.remove(classToRemove);
+            });
+        });
     }
 
     prepareDelay() {
